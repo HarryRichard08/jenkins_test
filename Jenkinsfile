@@ -13,7 +13,7 @@ pipeline {
                 checkout([$class: 'GitSCM', 
                           branches: [[name: '*/main']], // Using 'main' branch
                           userRemoteConfigs: [
-                              [url: 'https://github.com/aimleap-harry/scrapy_templeate.git',
+                              [url: 'https://github.com/HarryRichard08/jenkins_test.git',
                                credentialsId: 'test']
                           ]
                 ])
