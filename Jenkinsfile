@@ -93,7 +93,7 @@ pipeline {
                     def newFolderName = sh(script: "cat config_file | grep 'folder_name' | cut -d'=' -f2", returnStdout: true).trim()
 
                     sh "${sshpassPath} -p '${remotePassword}' ssh -o StrictHostKeyChecking=no ${remoteUsername}@${remoteHost} 'mkdir -p /root/projects/${newFolderName}'"
-                    sh "${sshpassPath} -p '${remotePassword}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r *_dag.py ${remoteUsername}@${remoteHost}:/root/dags/"
+                    sh "${sshpassPath} -p '${remotePassword}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r *_dag.py ${remoteUsername}@${remoteHost}:/root/airflow/dags/"
                     sh "${sshpassPath} -p '${remotePassword}' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r Scrapy-template/ ${remoteUsername}@${remoteHost}:/root/projects/${newFolderName}/"
                 }
             }
