@@ -24,5 +24,5 @@ dag = DAG('run_book_spider',
 run_spider_task = BashOperator(
     task_id='run_scrapy_spider',
     # Ensure the command matches the path and name of your Scrapy project and spider
-    bash_command='cd /root/projects/book_scrapy_project/Scrapy-template/books && scrapy crawl book -o /root/output_files/book.csv',
+    bash_command='cd /root/projects/book_scrapy_project/Scrapy-template/books && scrapy crawl book -o /root/airflow_outputs/book.csv',
     dag=dag)
