@@ -101,17 +101,17 @@ pipeline {
     }
 
     post {
-        always {
-            script {
-                try {
-                    // Fetching the email address from email.txt in the repository
-                    def recipientEmail = readFileFromGit('email.txt').trim()
+    always {
+        script {
+            try {
+                // Fetching the email address from email.txt in the repository
+                def recipientEmail = readFileFromGit('email.txt').trim()
 
-                    echo "Sending email to: ${recipientEmail}" // For debugging
+                echo "Sending email to: ${recipientEmail}" // For debugging
 
-                    emailext(
-                        subject: "Build Notification for Branch '${env.BRANCH_NAME}'",
-                        body: """Hello,
+                emailext(
+                    subject: "Build Notification for Branch '${env.BRANCH_NAME}'",
+                    body: """Hello,
 
 This email is to notify you that a build has been performed on the branch '${env.BRANCH_NAME}' in the ${env.JOB_NAME} job.
 
@@ -125,15 +125,16 @@ Please review the build and attached changes.
 Best regards,
 The Jenkins Team
 """,
-                        to: "richard.harry623@gmail.com", // Use the dynamically fetched email address
-                        mimeType: 'text/plain'
-                    )
-                } catch (Exception e) {
-    echo "Failed to send email. Printing stack trace for debugging:"
-    e.printStackTrace()
-    // Clean the workspace after every build
-    cleanWs()
-}
+                    to: recipientEmail, // Use the dynamically fetched email address
+                    mimeType: 'text/plain'
+                )
+            } catch (Exception e) {
+                echo "Failed to send email. Printing stack trace for debugging:"
+                e.printStackTrace()
+            } finally {
+                // Clean the workspace after every build
+                cleanWs()
+            }
         }
     }
 }
