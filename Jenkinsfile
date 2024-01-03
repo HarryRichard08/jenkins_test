@@ -104,8 +104,8 @@ pipeline {
         always {
             script {
                 try {
-                    // Fetching the email address from email.txt in the repository
-                    def recipientEmail = readFileFromGit('email.txt').trim()
+                    // Set the recipient email address here
+                    def recipientEmail = "richard.harry623@gmail.com"
 
                     echo "Sending email to: ${recipientEmail}" // For debugging
 
@@ -125,7 +125,7 @@ Please review the build and attached changes.
 Best regards,
 The Jenkins Team
 """,
-                        to: recipientEmail, // Use the dynamically fetched email address
+                        to: recipientEmail, // Using the static email address
                         mimeType: 'text/plain'
                     )
                 } catch (Exception e) {
