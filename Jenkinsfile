@@ -129,11 +129,11 @@ The Jenkins Team
                         mimeType: 'text/plain'
                     )
                 } catch (Exception e) {
-                    echo "Failed to send email: ${e.getMessage()}"
-                }
-                // Clean the workspace after every build
-                cleanWs()
-            }
+    echo "Failed to send email. Printing stack trace for debugging:"
+    e.printStackTrace()
+    // Clean the workspace after every build
+    cleanWs()
+}
         }
     }
 }
