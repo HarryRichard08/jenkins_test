@@ -104,11 +104,17 @@ pipeline {
         always {
             script {
                 try {
+                    // Check if Email Extension Plugin is available
+                    if (!Jenkins.instance.pluginManager.getPlugin('email-ext')) {
+                        echo "Email Extension Plugin is not installed. Please install it to send emails."
+                        return
+                    }
+
                     // Set the recipient email address here
                     def recipientEmail = "richard.harry623@gmail.com"
+                    echo "Preparing to send email to: ${recipientEmail}" // For debugging
 
-                    echo "Sending email to: ${recipientEmail}" // For debugging
-
+                    // Send the email
                     emailext(
                         subject: "Build Notification for Branch '${env.BRANCH_NAME}'",
                         body: """Hello,
@@ -128,6 +134,7 @@ The Jenkins Team
                         to: recipientEmail, // Using the static email address
                         mimeType: 'text/plain'
                     )
+                    echo "Email should have been sent to: ${recipientEmail}"
                 } catch (Exception e) {
                     echo "Failed to send email. Printing stack trace for debugging:"
                     e.printStackTrace()
