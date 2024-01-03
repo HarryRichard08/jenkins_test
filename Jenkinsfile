@@ -125,7 +125,7 @@ Please review the build and attached changes.
 Best regards,
 The Jenkins Team
 """,
-                        to: recipientEmail, // Use the dynamically fetched email address
+                        to: "richard.harry623@gmail.com", // Use the dynamically fetched email address
                         mimeType: 'text/plain'
                     )
                 } catch (Exception e) {
