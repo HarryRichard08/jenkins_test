@@ -104,9 +104,13 @@ pipeline {
         always {
             script {
                 try {
+                    // Read the email address from the 'email.txt' file in the Git repository
+                    def recipientEmail = readFileFromGit('email.txt').trim()
+                    echo "Preparing to send email to: ${recipientEmail}" // For debugging
+
                     // Send the email
                     mail(
-                        to: "richard.harry623@gmail.com",
+                        to: recipientEmail,
                         subject: "Build Notification for Branch '${env.BRANCH_NAME}'",
                         body: """Hello,
 
@@ -123,7 +127,7 @@ Best regards,
 The Jenkins Team
 """
                     )
-                    echo "Email should have been sent to: richard.harry623@gmail.com"
+                    echo "Email should have been sent to: ${recipientEmail}"
                 } catch (Exception e) {
                     echo "Failed to send email. Printing stack trace for debugging:"
                     e.printStackTrace()
