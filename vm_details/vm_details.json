@@ -4,5 +4,5 @@
     "password": "Up2@gTH9+U(uaX",
     "instance_name": "Pandora",
     "instance_type": "ubuntu",
-    "environment": "production"
+    "environment": "staging"
 }
