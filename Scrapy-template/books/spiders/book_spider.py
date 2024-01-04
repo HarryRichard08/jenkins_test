@@ -16,7 +16,7 @@ class BookSpider(scrapy.Spider):
             loader = ItemLoader(item=BookItem(), selector=book, response=response)
             
             # Use CSS selectors to extract the data
-            loader.add_css('title', 'h3 a::attr(title)')
+            loader.add_css('title', 'h8 a::attr(title)')
             loader.add_css('price', 'p.price_color::text')
             loader.add_css('availability', 'p.instock.availability::text')
 
