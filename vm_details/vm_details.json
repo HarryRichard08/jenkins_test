@@ -1,8 +1,8 @@
 {
-    "host": "209.145.55.222",
+    "host": "167.86.85.210",
     "username": "root",
-    "password": "oyMvIJ7Y317SWQg8",
+    "password": "Up2@gTH9+U(uaX",
     "instance_name": "Pandora",
     "instance_type": "ubuntu",
-    "environment": "staging"
+    "environment": "production"
 }
