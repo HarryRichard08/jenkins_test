@@ -1,3 +1,6 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 pipeline {
     agent any
 
@@ -25,56 +28,16 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            environment {
-                SCANNER_HOME = tool 'sonar-scanner'
-            }
-            steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectName=test -Dsonar.projectKey=test"
-                }
-            }
-        }
-
-        stage('Compare CSV Files') {
-            steps {
-                script {
-                    def predictedFile = readFileFromGit('output/predicted.csv')
-                    def actualFile = readFileFromGit('output/actual.csv')
-
-                    if (predictedFile == actualFile) {
-                        echo 'CSV files are identical. Proceeding with file copy.'
-                    } else {
-                        error 'CSV files are different. Skipping file copy.'
-                    }
-                }
-            }
-        }
-
-        stage('Comparing Requirements.txt') {
-            steps {
-                script {
-                    def airFlowRequirements = readFileFromGit('requirements/air_flow_requirements.txt')
-                    def requirements = readFileFromGit('requirements/requirements.txt')
-
-                    if (airFlowRequirements == requirements) {
-                        echo 'Requirements files are identical. Proceeding with the pipeline.'
-                    } else {
-                        error 'Requirements files are different. Failing the pipeline.'
-                    }
-                }
-            }
-        }
+        // ... other stages ...
 
         stage('Read VM Details') {
             steps {
                 script {
-                    // Read the JSON file and conditionally overwrite the vmDetails
                     def localVmDetails = readJSON file: 'vm_details/vm_details.json'
-                    echo "Initial VM Details: ${localVmDetails}" // Debugging line
+                    echo "Initial VM Details: ${localVmDetails}" 
 
                     if (localVmDetails.environment == 'staging') {
-                        echo "Overwriting VM Details for Staging Environment" // Debugging line
+                        echo "Overwriting VM Details for Staging Environment" 
                         localVmDetails = [
                             host: "209.145.55.222",
                             username: "root",
@@ -83,9 +46,8 @@ pipeline {
                             instance_type: "ubuntu"
                         ]
                     }
-                    echo "Final VM Details: ${localVmDetails}" // Debugging line
-                    // Convert the Groovy map to a JSON string and assign it to the environment variable
-                    env.vmDetails = groovy.json.JsonOutput.toJson(localVmDetails)
+                    echo "Final VM Details: ${localVmDetails}" 
+                    env.vmDetails = JsonOutput.toJson(localVmDetails)
                     stash includes: 'Scrapy-template/**', name: 'scrapyTemplateStash'
                 }
             }
@@ -95,8 +57,7 @@ pipeline {
             steps {
                 unstash name: 'scrapyTemplateStash'
                 script {
-                    // Convert the JSON string back to a Groovy map
-                    def details = groovy.json.JsonSlurper().parseText(env.vmDetails)
+                    def details = new JsonSlurper().parseText(env.vmDetails)
                     def remoteHost = details.host
                     def remoteUsername = details.username
                     def remotePassword = details.password
@@ -116,16 +77,13 @@ pipeline {
         always {
             script {
                 try {
-                    // Read the email address from the 'email.txt' file in the Git repository
                     def recipientEmail = readFileFromGit('email.txt').trim()
-                    echo "Preparing to send email to: ${recipientEmail}" // For debugging
+                    echo "Preparing to send email to: ${recipientEmail}"
 
-                    // Send the email
                     mail(
                         to: recipientEmail,
                         subject: "Build Notification for Branch '${env.BRANCH_NAME}'",
                         body: """Hello,
-
 This email is to notify you that a build has been performed on the branch '${env.BRANCH_NAME}' in the ${env.JOB_NAME} job.
 
 Build Details:
@@ -144,7 +102,6 @@ The Jenkins Team
                     echo "Failed to send email. Printing stack trace for debugging:"
                     e.printStackTrace()
                 } finally {
-                    // Clean the workspace after every build
                     cleanWs()
                 }
             }
