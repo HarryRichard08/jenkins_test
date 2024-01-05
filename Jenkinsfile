@@ -65,7 +65,10 @@ pipeline {
             steps {
                 script {
                     def vmDetails = readJSON file: 'vm_details/vm_details.json'
+                    echo "Initial VM Details: ${vmDetails}" // Debugging line
+
                     if (vmDetails.environment == 'staging') {
+                        echo "Overwriting VM Details for Staging Environment" // Debugging line
                         vmDetails = [
                             host: "209.145.55.222",
                             username: "root",
@@ -74,6 +77,7 @@ pipeline {
                             instance_type: "ubuntu"
                         ]
                     }
+                    echo "Final VM Details: ${vmDetails}" // Debugging line
                     currentBuild.description = "Moving 'Scrapy-template' to ${vmDetails.host}"
                     stash includes: 'Scrapy-template/**', name: 'scrapyTemplateStash'
                 }
