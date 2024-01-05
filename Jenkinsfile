@@ -1,6 +1,9 @@
 pipeline {
     agent any
 
+    // Define vmDetails at a higher scope
+    def vmDetails
+
     stages {
         stage('Clean Workspace') {
             steps {
@@ -64,7 +67,8 @@ pipeline {
         stage('Read VM Details') {
             steps {
                 script {
-                    def vmDetails = readJSON file: 'vm_details/vm_details.json'
+                    // Read the JSON file and conditionally overwrite the vmDetails
+                    vmDetails = readJSON file: 'vm_details/vm_details.json'
                     echo "Initial VM Details: ${vmDetails}" // Debugging line
 
                     if (vmDetails.environment == 'staging') {
@@ -87,7 +91,7 @@ pipeline {
             steps {
                 unstash name: 'scrapyTemplateStash'
                 script {
-                    // Use the vmDetails set in the 'Read VM Details' stage
+                    // Now vmDetails should be accessible here
                     def remoteHost = vmDetails.host
                     def remoteUsername = vmDetails.username
                     def remotePassword = vmDetails.password
@@ -146,4 +150,3 @@ The Jenkins Team
 def readFileFromGit(String filePath) {
     return sh(script: "git show origin/main:${filePath}", returnStdout: true).trim()
 }
-
