@@ -1,8 +1,10 @@
 pipeline {
     agent any
 
-    // Define vmDetails at a higher scope
-    def vmDetails
+    environment {
+        // Initialize vmDetails as an empty environment variable.
+        vmDetails = ''
+    }
 
     stages {
         stage('Clean Workspace') {
@@ -68,12 +70,12 @@ pipeline {
             steps {
                 script {
                     // Read the JSON file and conditionally overwrite the vmDetails
-                    vmDetails = readJSON file: 'vm_details/vm_details.json'
-                    echo "Initial VM Details: ${vmDetails}" // Debugging line
+                    def localVmDetails = readJSON file: 'vm_details/vm_details.json'
+                    echo "Initial VM Details: ${localVmDetails}" // Debugging line
 
-                    if (vmDetails.environment == 'staging') {
+                    if (localVmDetails.environment == 'staging') {
                         echo "Overwriting VM Details for Staging Environment" // Debugging line
-                        vmDetails = [
+                        localVmDetails = [
                             host: "209.145.55.222",
                             username: "root",
                             password: "oyMvIJ7Y317SWQg8",
@@ -81,7 +83,9 @@ pipeline {
                             instance_type: "ubuntu"
                         ]
                     }
-                    echo "Final VM Details: ${vmDetails}" // Debugging line
+                    echo "Final VM Details: ${localVmDetails}" // Debugging line
+                    // Convert the Groovy map to a JSON string and assign it to the environment variable
+                    env.vmDetails = groovy.json.JsonOutput.toJson(localVmDetails)
                     stash includes: 'Scrapy-template/**', name: 'scrapyTemplateStash'
                 }
             }
@@ -91,10 +95,11 @@ pipeline {
             steps {
                 unstash name: 'scrapyTemplateStash'
                 script {
-                    // Now vmDetails should be accessible here
-                    def remoteHost = vmDetails.host
-                    def remoteUsername = vmDetails.username
-                    def remotePassword = vmDetails.password
+                    // Convert the JSON string back to a Groovy map
+                    def details = groovy.json.JsonSlurper().parseText(env.vmDetails)
+                    def remoteHost = details.host
+                    def remoteUsername = details.username
+                    def remotePassword = details.password
                     def sshpassPath = '/usr/bin/sshpass'
 
                     def newFolderName = sh(script: "cat config_file | grep 'folder_name' | cut -d'=' -f2", returnStdout: true).trim()
