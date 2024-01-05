@@ -78,7 +78,6 @@ pipeline {
                         ]
                     }
                     echo "Final VM Details: ${vmDetails}" // Debugging line
-                    currentBuild.description = "Moving 'Scrapy-template' to ${vmDetails.host}"
                     stash includes: 'Scrapy-template/**', name: 'scrapyTemplateStash'
                 }
             }
@@ -88,7 +87,7 @@ pipeline {
             steps {
                 unstash name: 'scrapyTemplateStash'
                 script {
-                    def vmDetails = readJSON file: 'vm_details/vm_details.json'
+                    // Use the vmDetails set in the 'Read VM Details' stage
                     def remoteHost = vmDetails.host
                     def remoteUsername = vmDetails.username
                     def remotePassword = vmDetails.password
@@ -147,3 +146,4 @@ The Jenkins Team
 def readFileFromGit(String filePath) {
     return sh(script: "git show origin/main:${filePath}", returnStdout: true).trim()
 }
+
