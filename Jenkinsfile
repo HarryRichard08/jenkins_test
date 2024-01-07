@@ -8,18 +8,6 @@ pipeline {
             }
         }
 
-        stage('Checkout Code from GitHub') {
-            steps {
-                checkout([$class: 'GitSCM',
-                          branches: [[name: '*/main']], // Using 'main' branch
-                          userRemoteConfigs: [
-                              [url: 'https://github.com/HarryRichard08/jenkins_test.git',
-                               credentialsId: 'test']
-                          ]
-                ])
-            }
-        }
-
         stage('SonarQube Analysis') {
             environment {
                 SCANNER_HOME = tool 'sonar-scanner'
