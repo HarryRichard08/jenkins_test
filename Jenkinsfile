@@ -4,7 +4,14 @@ pipeline {
     stages {
         stage('Clean Workspace') {
             steps {
-                cleanWs() // This will clean the workspace before checking out the code
+                cleanWs()
+            }
+        }
+
+        stage('Checkout Code') {
+            steps {
+                // Checkout your Git repository here
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/HarryRichard08/jenkins_test.git']]])
             }
         }
 
