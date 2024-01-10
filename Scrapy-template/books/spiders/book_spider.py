@@ -3,6 +3,7 @@ from books.items import BookItem
 from scrapy.loader import ItemLoader
 
 class BookSpider(scrapy.Spider):
+    # this is comment
     name = 'book'
     allowed_domains = ['books.toscrape.com']
     start_urls = ['http://amazon.com']
