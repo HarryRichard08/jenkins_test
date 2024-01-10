@@ -10,8 +10,10 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                // Checkout your Git repository here
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/HarryRichard08/jenkins_test.git']]])
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: '*/main']], 
+                          userRemoteConfigs: [[url: 'https://github.com/HarryRichard08/jenkins_test.git']]
+                ])
             }
         }
 
@@ -29,8 +31,8 @@ pipeline {
         stage('Compare CSV Files') {
             steps {
                 script {
-                    def predictedFile = readFileFromGit('output/predicted.csv')
-                    def actualFile = readFileFromGit('output/actual.csv')
+                    def predictedFile = readFile('output/predicted.csv').trim()
+                    def actualFile = readFile('output/actual.csv').trim()
 
                     if (predictedFile == actualFile) {
                         echo 'CSV files are identical. Proceeding with file copy.'
@@ -44,8 +46,8 @@ pipeline {
         stage('Comparing Requirements.txt') {
             steps {
                 script {
-                    def airFlowRequirements = readFileFromGit('requirements/air_flow_requirements.txt')
-                    def requirements = readFileFromGit('requirements/requirements.txt')
+                    def airFlowRequirements = readFile('requirements/air_flow_requirements.txt').trim()
+                    def requirements = readFile('requirements/requirements.txt').trim()
 
                     if (airFlowRequirements == requirements) {
                         echo 'Requirements files are identical. Proceeding with the pipeline.'
@@ -60,10 +62,10 @@ pipeline {
             steps {
                 script {
                     def vmDetails = readJSON file: 'vm_details/vm_details.json'
-                    echo "Initial VM Details: ${vmDetails}" // Debugging line
+                    echo "Initial VM Details: ${vmDetails}"
 
                     if (vmDetails.environment == 'staging') {
-                        echo "Overwriting VM Details for Staging Environment" // Debugging line
+                        echo "Overwriting VM Details for Staging Environment"
                         vmDetails = [
                             host: "209.145.55.222",
                             username: "root",
@@ -72,7 +74,7 @@ pipeline {
                             instance_type: "ubuntu"
                         ]
                     }
-                    echo "Final VM Details: ${vmDetails}" // Debugging line
+                    echo "Final VM Details: ${vmDetails}"
                     currentBuild.description = "Moving 'Scrapy-template' to ${vmDetails.host}"
                     stash includes: 'Scrapy-template/**', name: 'scrapyTemplateStash'
                 }
@@ -103,11 +105,9 @@ pipeline {
         always {
             script {
                 try {
-                    // Read the email address from the 'email.txt' file in the Git repository
-                    def recipientEmail = readFileFromGit('email.txt').trim()
-                    echo "Preparing to send email to: ${recipientEmail}" // For debugging
+                    def recipientEmail = readFile('email.txt').trim()
+                    echo "Preparing to send email to: ${recipientEmail}"
 
-                    // Send the email
                     mail(
                         to: recipientEmail,
                         subject: "Build Notification for Branch '${env.BRANCH_NAME}'",
@@ -131,14 +131,9 @@ The Jenkins Team
                     echo "Failed to send email. Printing stack trace for debugging:"
                     e.printStackTrace()
                 } finally {
-                    // Clean the workspace after every build
                     cleanWs()
                 }
             }
         }
     }
-}
-
-def readFileFromGit(String filePath) {
-    return sh(script: "git show origin/main:${filePath}", returnStdout: true).trim()
 }
