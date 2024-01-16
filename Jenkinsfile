@@ -17,13 +17,11 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            environment {
-                SCANNER_HOME = tool 'sonar-scanner'
-            }
+        stage("Sonarqube Analysis ") {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectName=test -Dsonar.projectKey=test"
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix \
+                    -Dsonar.projectKey=Netflix '''
                 }
             }
         }
